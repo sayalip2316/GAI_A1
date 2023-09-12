@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+      }
+
+      .main {
+        width: 60%;
+        margin: auto;
+        margin-top: 50px;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      #search {
+        width: 80%;
+        margin: 20px auto;
+        font-size: 15px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      button {
+        width: 20%;
+        display: block;
+        margin: auto;
+        font-size: 15px;
+        padding: 10px;
+        border: none;
+        border-radius: 10px;
+        background-color: #3498db;
+        color: #fff;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #2980b9;
+      }
+
+      .main_t {
+        width: 80%;
+        max-height: 400px;
+        overflow-y: scroll;
+        margin: 10px auto;
+        color: #333;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 10px;
+        background-color: #fff;
+      }
+
+      .user-message {
+        text-align: right;
+        margin-bottom: 10px;
+      }
+
+      .bot-message {
+        text-align: left;
+        margin-bottom: 10px;
+      }
+    </style>
+</head>
+<body>
+   <div class="main_t" id="chat-container">
+      <!-- Chat messages will be displayed here -->
+   </div> 
+   <div class="main">
+      <input type="text" placeholder="Type Here" id="search">
+      <button onclick="Onsubmit()">Submit</button>
+   </div>
+</body>
+</html>
+<script>
+   const inputEl = document.getElementById("search");
+   const chatContainer = document.getElementById("chat-container");
+
+   function appendUserMessage(message) {
+      const userMessage = document.createElement("div");
+      userMessage.className = "user-message";
+      userMessage.textContent = message;
+      chatContainer.appendChild(userMessage);
+   }
+
+   function appendBotMessage(message) {
+      const botMessage = document.createElement("div");
+      botMessage.className = "bot-message";
+      botMessage.textContent = message;
+      chatContainer.appendChild(botMessage);
+   }
+
+   function Onsubmit() {
+      const userMessage = inputEl.value;
+      if (userMessage.trim() === "") {
+         return; // Don't send empty messages
+      }
+
+      appendUserMessage(userMessage);
+      inputEl.value = ""; // Clear the input field
+
+      const payload = {
+         message: userMessage
+      };
+
+      // Display loading indicator here
+
+      fetch("http://localhost:4500/api/chat/new", {
+         method: "POST",
+         headers: {
+            "Content-Type": "application/json"
+         },
+         body: JSON.stringify(payload)
+      })
+      .then((res) => res.json())
+      .then((data) => {
+         // Hide loading indicator here
+         const botResponse = data.answer;
+         appendBotMessage(botResponse);
+      })
+      .catch((error) => {
+         console.error(error);
+         // Display an error message to the user
+         appendBotMessage("Oops! Something went wrong. Please try again.");
+      });
+   }
+</script>
